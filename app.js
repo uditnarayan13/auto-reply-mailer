@@ -34,6 +34,9 @@ app.get('/', (req, res, next) => {
 
 async function checkEmails() {
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
+    /* Avoiding the mails  which has subject do-not-reply */
+
     const res = await gmail.users.messages.list({
         userId: 'me',
         labelIds: ['INBOX'],
@@ -90,7 +93,7 @@ async function sendMail(email, subject) {
             text: 'Please reach out to me after 10 days',
             html: 'Please reach out to me after <h1> 10 days</h1>',
         };
-        
+
         const result = await transport.sendMail(mailOptions);
 
         return result;
@@ -104,6 +107,7 @@ async function countReplies(threadId) {
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
 
     const thread = await gmail.users.threads.get({ userId: 'me', id: threadId });
+    /* The first email is not counted as reply */
     return thread.data.messages.length - 1;
 }
 
